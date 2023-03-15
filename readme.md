@@ -1,10 +1,11 @@
 ﻿# Paylocity Coding Challenge - Thomas Nelson | https://github.com/tcnelson13 | tcnelson13@gmail.com
 
 ## Prerequisites
+
 - Create a payroll.db sqlite database file. These snippets will create some tables and seed data
-    From command prompt run: sqlite3
-        -- Create payroll database
-        CREATE DATABASE payroll;
+  From command prompt run: sqlite3
+  -- Create payroll database
+  CREATE DATABASE payroll;
 
         -- Create Employee Table
         CREATE TABLE Employee
@@ -57,5 +58,50 @@
         INSERT INTO BenefitRate(Name, AnnualBenefitCost) VALUES('Dependent', 500.00);
 
 ##
+
 I am running the database on a Macbook at Users/[username]/.local/share
 
+## Endpoints and Functionality
+
+### Swagger viewable at: https://localhost:7096/swagger/index.html
+
+## Employees Endpoint
+
+1. GET - Get Employees - Returns an array of EmployeeModels as JSON for all Employee records in the database
+   https://localhost:7096/api/employees
+2. GET - Get Employee By Id
+   https://localhost:7096/api/employees/1
+3. POST - Add a Dependent
+   https://localhost:7096/api/employees/1
+   Takes a JSON payload like:
+   ```json
+   {
+     "dependentId": 0,
+     "employeeId": 1,
+     "name": "Jack Johnson",
+     "dependentTypeId": 2,
+     "benefitRateId": 2
+   }
+   ```
+4. PUT - Updates a dependent [NOT IMPLEMENTED]
+   https://localhost:7096/api/employees/1/2
+5. DELETE - Deletes a dependent [NOT IMPLEMENTED]
+   https://localhost:7096/api/employees/1/2
+
+## PayrollAdmin Endpoint
+
+1. GET - Returns current benefit rates https://localhost:7096/api/admin
+2. PUT - Updates a benefit rate with the following JSON payload https://localhost:7096/api/admin/123/benefitrateid/1
+   ```json
+   {
+     "benefitRateId": 1,
+     "name": "Employee",
+     "annualBenefitCost": 1250
+   }
+   ```
+3. GET - Allows user to preview payroll of the employees in the database based on the current benefit rates https://localhost:7096/api/admin/123/
+4. POST - Processes payroll applying the most recent benefit rates in the system to the employee record - P https://localhost:7096/api/admin/123/
+
+## Unit Tests
+
+1. A couple of unit tests to test some calculations
