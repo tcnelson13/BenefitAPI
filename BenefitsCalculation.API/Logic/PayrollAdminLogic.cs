@@ -48,7 +48,7 @@ public class PayrollAdminLogic : IPayrollAdminLogic
         foreach (var employeeModel in employeeModels)
         {
             var annualBenefitCost = CalculateTotalBenefitCost(employeeModel, benefitRates);
-            employeeModel.PayPeriodBenefitCost = (annualBenefitCost / employeeModel.AnnualPaycheckCount);
+            employeeModel.PayPeriodBenefitCost = Math.Round((annualBenefitCost / employeeModel.AnnualPaycheckCount), 2);
         }        
 
         return employeeModels;
