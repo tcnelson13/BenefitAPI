@@ -12,17 +12,6 @@ public class EmployeeModel
     public BenefitRateType BenefitRateId { get; set; }
     public List<DependentModel> Dependents { get; set; } = new List<DependentModel>();
 
-
-    //public decimal CalucateBenefitsCost()
-    //{
-    //    return 0.00;
-    //}
-
-    //public decimal CalculateNetPay(Employee employee)
-    //{
-    //    return employee.AnnualSalary - employee.BenefitCost;
-    //}
-
     public static EmployeeModel FromEmployee(Employee employee)
     {
         return new EmployeeModel

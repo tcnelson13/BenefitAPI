@@ -14,7 +14,8 @@ namespace BenefitsCalculation.API.Tests.Admin
             // Arrange
             var employeeModels = EmployeesDataStore.Current.Employees;
             var payrollAdminLogic = new PayrollAdminLogic(new PayrollAdminRepository(),
-                new EmployeeLogic(new EmployeeRepository(), new PayrollAdminRepository()));
+                new EmployeeLogic(new EmployeeRepository(), new PayrollAdminRepository()),
+                new BenefitCalc(new EmployeeRepository(), new PayrollAdminRepository()));
 
             List<BenefitRate> benefitRates = new List<BenefitRate>()
                 {

@@ -8,11 +8,16 @@ public class PayrollAdminLogic : IPayrollAdminLogic
 {
     private readonly IPayrollAdminRepository _payrollAdminRepository;
     private readonly IEmployeeLogic _employeeLogic;
+    private readonly IBenefitCalc _benefitCalc;
 
-    public PayrollAdminLogic(IPayrollAdminRepository payrollRepository, IEmployeeLogic employeeLogic)
+    public PayrollAdminLogic(
+        IPayrollAdminRepository payrollRepository,
+        IEmployeeLogic employeeLogic,
+        IBenefitCalc benefitCalc)
     {
         _payrollAdminRepository = payrollRepository;
         _employeeLogic = employeeLogic;
+        _benefitCalc = benefitCalc;
     }
 
     public async Task<int> UpdateBenefitRateAsync(BenefitRateModel benefitRateModel)
@@ -55,7 +60,7 @@ public class PayrollAdminLogic : IPayrollAdminLogic
         
         foreach (var employeeModel in employeeModels)
         {
-            int? rowsAffected = await _employeeLogic.UpdateBenefitCostAsync((int)employeeModel.EmployeeId);
+            int? rowsAffected = await _benefitCalc.UpdateBenefitCostAsync((int)employeeModel.EmployeeId);
         }
 
         List<EmployeeModel> employeeModelsProcessed = await _employeeLogic.GetEmployeesAsync();
@@ -69,11 +74,11 @@ public class PayrollAdminLogic : IPayrollAdminLogic
         double annualEmployeeBenefitCost = benefitRates.Find(er => er.BenefitRateId == 1).AnnualBenefitCost;
         double annualDependentBenefitCost = benefitRates.Find(dr => dr.BenefitRateId == 2).AnnualBenefitCost;
 
-        totalAnnualdBenefitCost += _employeeLogic.CalculateDiscount(employeeModel.Name, annualEmployeeBenefitCost);
+        totalAnnualdBenefitCost += _benefitCalc.CalculateDiscount(employeeModel.Name, annualEmployeeBenefitCost);
 
         foreach (var dependentModel in employeeModel.Dependents)
         {
-            totalAnnualdBenefitCost += _employeeLogic.CalculateDiscount(dependentModel.Name, annualDependentBenefitCost);
+            totalAnnualdBenefitCost += _benefitCalc.CalculateDiscount(dependentModel.Name, annualDependentBenefitCost);
         }   
 
         return totalAnnualdBenefitCost;

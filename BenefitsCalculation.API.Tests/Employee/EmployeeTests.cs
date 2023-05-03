@@ -10,11 +10,12 @@ namespace BenefitsCalculation.API.Tests.Employee
         public void CheckEmployeeRate()
         {
             // Arrange
-            var employeeLogic = new EmployeeLogic(new EmployeeRepository(), new PayrollAdminRepository());
+            // var employeeLogic = new EmployeeLogic(new EmployeeRepository(), new PayrollAdminRepository(), new BenefitCalc());
+            var benefitCalc = new BenefitCalc(new EmployeeRepository(), new PayrollAdminRepository());
 
             // Act
-            double standardRate = employeeLogic.CalculateDiscount("Joe Smithe", 1000);
-            double discountRate = employeeLogic.CalculateDiscount("Andrew Jones", 1000);
+            double standardRate = benefitCalc.CalculateDiscount("Joe Smithe", 1000);
+            double discountRate = benefitCalc.CalculateDiscount("Andrew Jones", 1000);
 
             // Assert
             Assert.Equal(1000, standardRate);

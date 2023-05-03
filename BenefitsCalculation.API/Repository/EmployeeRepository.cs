@@ -15,23 +15,31 @@ namespace BenefitsCalculation.API.Repository
 
         public async Task<int> AddDependentAsync(int employeeId, Dependent dependent)
         {
-            using var connection = new SqliteConnection(GetConnectionString());
-            await connection.OpenAsync();
+            int rowsAffected = 0;
+            try
+            {
+                using var connection = new SqliteConnection(GetConnectionString());
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
                 INSERT INTO Dependent
                     (EmployeeId, Name, DependentTypeId, BenefitRateId)
                 VALUES
                     ($EmployeeId, $Name, $DependentTypeId, $BenefitRateId);
-            ";
-            command.Parameters.AddWithValue("$EmployeeId", dependent.EmployeeId);
-            command.Parameters.AddWithValue("$Name", dependent.Name);
-            command.Parameters.AddWithValue("$DependentTypeId", (int)dependent.DependentTypeId);
-            command.Parameters.AddWithValue("$BenefitRateId", (int)dependent.BenefitRateId);
-
-            return await command.ExecuteNonQueryAsync();            
+                ";
+                command.Parameters.AddWithValue("$EmployeeId", dependent.EmployeeId);
+                command.Parameters.AddWithValue("$Name", dependent.Name);
+                command.Parameters.AddWithValue("$DependentTypeId", (int)dependent.DependentTypeId);
+                command.Parameters.AddWithValue("$BenefitRateId", (int)dependent.BenefitRateId);
+                rowsAffected = await command.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+            }
+            return rowsAffected;          
         }
 
         public void DeleteDependentAsync(int dependentId)
@@ -42,29 +50,37 @@ namespace BenefitsCalculation.API.Repository
         public async Task<List<Dependent>> GetDependentsAsync(int employeeId)
         {
             List<Dependent> dependents = new List<Dependent>();
-            using var connection = new SqliteConnection(GetConnectionString());
-            await connection.OpenAsync();
+            try
+            {
+                using var connection = new SqliteConnection(GetConnectionString());
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
                 SELECT DependentId, EmployeeId, Name, DependentTypeId
                 FROM Dependent
                 WHERE EmployeeId = $EmployeeId;
-            ";
-            command.Parameters.AddWithValue("$EmployeeId", employeeId);
+                ";
+                command.Parameters.AddWithValue("$EmployeeId", employeeId);
 
-            using (var reader = await command.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    var dependent = new Dependent();
-                    dependent.DependentId = (long)reader["DependentId"];
-                    dependent.EmployeeId = (long)reader["EmployeeId"];
-                    dependent.Name = reader["Name"].ToString();
-                    dependent.DependentTypeId = (long)reader["DependentTypeId"];
-                    dependents.Add(dependent);
+                    while (await reader.ReadAsync())
+                    {
+                        var dependent = new Dependent();
+                        dependent.DependentId = (long)reader["DependentId"];
+                        dependent.EmployeeId = (long)reader["EmployeeId"];
+                        dependent.Name = reader["Name"].ToString();
+                        dependent.DependentTypeId = (long)reader["DependentTypeId"];
+                        dependents.Add(dependent);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                // ILogger
             }
             return dependents;
         }
@@ -72,69 +88,81 @@ namespace BenefitsCalculation.API.Repository
         public async Task<Employee?> GetEmployeeAsync(int employeeId)
         {
             Employee employee = new Employee();
-            using var connection = new SqliteConnection(GetConnectionString());
-            await connection.OpenAsync();
+            try
+            {
+                using var connection = new SqliteConnection(GetConnectionString());
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
                 SELECT EmployeeId, Name, AnnualPaycheckCount, AnnualSalary, PayPeriodBenefitCost, BenefitRateId
                 FROM Employee
                 WHERE EmployeeId = $employeeId;
-            ";
-            command.Parameters.AddWithValue("$employeeId", employeeId);
+                ";
+                command.Parameters.AddWithValue("$employeeId", employeeId);
 
-            using (var reader = await command.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    employee.EmployeeId = (long)reader["EmployeeId"];
-                    employee.Name = reader["Name"].ToString();
-                    employee.AnnualPaycheckCount = (long)reader["AnnualPaycheckCount"];
-                    employee.AnnualSalary = (long)reader["AnnualSalary"];
-                    employee.PayPeriodBenefitCost = (double)reader["PayPeriodBenefitCost"];
-                    employee.BenefitRateId = (long)reader["BenefitRateId"];
+                    while (await reader.ReadAsync())
+                    {
+                        employee.EmployeeId = (long)reader["EmployeeId"];
+                        employee.Name = reader["Name"].ToString();
+                        employee.AnnualPaycheckCount = (long)reader["AnnualPaycheckCount"];
+                        employee.AnnualSalary = (long)reader["AnnualSalary"];
+                        employee.PayPeriodBenefitCost = (double)reader["PayPeriodBenefitCost"];
+                        employee.BenefitRateId = (long)reader["BenefitRateId"];
+                    }
                 }
-            }
 
-            employee.Dependents = await GetDependentsAsync(employeeId);
-            
+                employee.Dependents = await GetDependentsAsync(employeeId);
+            }
+            catch(Exception ex)
+            {
+                // Log exception
+            }
             return employee.EmployeeId > 0 ? employee : null;
         }
 
         public async Task<List<Employee>> GetEmployeesAsync()
         {
             List<Employee> employees = new List<Employee>();
-            using var connection = new SqliteConnection(GetConnectionString());
-            await connection.OpenAsync();
+            try
+            {
+                using var connection = new SqliteConnection(GetConnectionString());
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
                 SELECT EmployeeId, Name, AnnualPaycheckCount, AnnualSalary, PayPeriodBenefitCost, BenefitRateId
                 FROM Employee;
-            ";
+                ";
 
-            using (var reader = await command.ExecuteReaderAsync())
-            {
-                while (await reader.ReadAsync())
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    Employee employee = new Employee();
-                    employee.EmployeeId = (long)reader["EmployeeId"];
-                    employee.Name = reader["Name"].ToString();
-                    employee.AnnualPaycheckCount = (long)reader["AnnualPaycheckCount"];
-                    employee.AnnualSalary = (long)reader["AnnualSalary"];
-                    employee.PayPeriodBenefitCost = (double)reader["PayPeriodBenefitCost"];
-                    employee.BenefitRateId = (long)reader["BenefitRateId"];
-                    employees.Add(employee);
+                    while (await reader.ReadAsync())
+                    {
+                        Employee employee = new Employee();
+                        employee.EmployeeId = (long)reader["EmployeeId"];
+                        employee.Name = reader["Name"].ToString();
+                        employee.AnnualPaycheckCount = (long)reader["AnnualPaycheckCount"];
+                        employee.AnnualSalary = (long)reader["AnnualSalary"];
+                        employee.PayPeriodBenefitCost = (double)reader["PayPeriodBenefitCost"];
+                        employee.BenefitRateId = (long)reader["BenefitRateId"];
+                        employees.Add(employee);
+                    }
+                }
+
+                foreach (var employee in employees)
+                {
+                    employee.Dependents = await GetDependentsAsync((int)employee.EmployeeId);
                 }
             }
-
-            foreach (var employee in employees)
+            catch (Exception ex)
             {
-                employee.Dependents = await GetDependentsAsync((int)employee.EmployeeId);
+                // Log exception in APM software
             }
-
 
             return employees;
         }
@@ -151,20 +179,28 @@ namespace BenefitsCalculation.API.Repository
 
         public async Task<int> UpdateBenefitCost(int employeeId, double payPeriodBenefitCost)
         {
-            using var connection = new SqliteConnection(GetConnectionString());
-            await connection.OpenAsync();
+            int rowsAffected = 0;
+            try
+            {
+                using var connection = new SqliteConnection(GetConnectionString());
+                await connection.OpenAsync();
 
-            var command = connection.CreateCommand();
-            command.CommandText =
-            @"
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
                 UPDATE Employee SET
                     PayPeriodBenefitCost = $PayPeriodBenefitCost
                 WHERE EmployeeId = $EmployeeId;
-            ";
-            command.Parameters.AddWithValue("$EmployeeId", employeeId);
-            command.Parameters.AddWithValue("$PayPeriodBenefitCost", payPeriodBenefitCost);
-
-            return await command.ExecuteNonQueryAsync();
+                ";
+                command.Parameters.AddWithValue("$EmployeeId", employeeId);
+                command.Parameters.AddWithValue("$PayPeriodBenefitCost", payPeriodBenefitCost);
+                rowsAffected = await command.ExecuteNonQueryAsync();
+            }
+            catch(Exception ex)
+            {
+                // Log exception
+            }
+            return rowsAffected;
         }
     }
 }

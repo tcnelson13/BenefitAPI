@@ -21,7 +21,7 @@ public class PayrollAdminController : ControllerBase
         _payrollAdminLogic = payrollAdminLogic;
     }
 
-    [HttpGet]
+    [HttpGet("benefitrates")]
     public async Task<ActionResult<BenefitRateModel>> GetBenefitRates()
     {
         var benefitRates = await _payrollAdminLogic.GetBenefitRatesAsync();
@@ -36,14 +36,14 @@ public class PayrollAdminController : ControllerBase
         return Ok(rowsAffected);
     }
 
-    [HttpGet("{adminId}")]
+    [HttpGet("{adminId}/previewpayroll")]
     public async Task<ActionResult<List<EmployeeModel>>> PreviewPayrollAsync()
     {
         var employeeModels = await _payrollAdminLogic.PreviewPayrollAsync();
         return Ok(employeeModels);
     }
 
-    [HttpPost("{adminId}", Name ="ProcessPayroll")]
+    [HttpPost("{adminId}/processpayroll", Name ="ProcessPayroll")]
     public async Task<ActionResult<List<EmployeeModel>>> ProcessPayrollAsync()
     {
         var employeeModels = await _payrollAdminLogic.ProcessPayrollAsync();

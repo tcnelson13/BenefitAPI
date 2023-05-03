@@ -10,10 +10,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IEmployeeLogic, EmployeeLogic>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IPayrollAdminLogic, PayrollAdminLogic>();
-builder.Services.AddScoped<IPayrollAdminRepository, PayrollAdminRepository>();
+builder.Services.AddTransient<IEmployeeLogic, EmployeeLogic>();
+builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddTransient<IPayrollAdminLogic, PayrollAdminLogic>();
+builder.Services.AddTransient<IPayrollAdminRepository, PayrollAdminRepository>();
+builder.Services.AddTransient<IBenefitCalc, BenefitCalc>();
 
 var app = builder.Build();
 

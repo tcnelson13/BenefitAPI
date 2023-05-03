@@ -9,10 +9,12 @@ namespace BenefitsCalculation.API.Controllers;
 public class EmployeesController : ControllerBase
 {
     private readonly IEmployeeLogic _employeeLogic;
+    private readonly IBenefitCalc _benefitCalc;
 
-    public EmployeesController(IEmployeeLogic employeeLogic)
+    public EmployeesController(IEmployeeLogic employeeLogic, IBenefitCalc benefitCalc)
     {
         _employeeLogic = employeeLogic;
+        _benefitCalc = benefitCalc;
     }
 
     [HttpGet]
@@ -41,7 +43,7 @@ public class EmployeesController : ControllerBase
     public async Task<ActionResult<DependentModel>> AddDependent(int employeeId, DependentModel dependentModel)
     {
         int rowsAffected = await _employeeLogic.AddDependentAsync(employeeId, dependentModel);
-        int? recordUpdated = await _employeeLogic.UpdateBenefitCostAsync(employeeId);
+        int? recordUpdated = await _benefitCalc.UpdateBenefitCostAsync(employeeId);
         var employee = await _employeeLogic.GetEmployeeAsync(employeeId);
 
         return CreatedAtRoute("AddDependent", new { employeeId = employeeId, newDependent = employee.Dependents.Max(d => d.DependentId) });
