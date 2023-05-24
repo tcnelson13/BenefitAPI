@@ -1,5 +1,3 @@
-﻿# Paylocity Coding Challenge - Thomas Nelson | https://github.com/tcnelson13 | tcnelson13@gmail.com
-
 ## Prerequisites
 
 - Create a payroll.db sqlite database file. These snippets will create some tables and seed data
